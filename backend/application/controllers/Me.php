@@ -20,9 +20,7 @@ class Me extends MY_Controller {
      */
     public function index_get()
     {
-        $this->response()->success([
-            'oi'
-        ]);
+        $this->response()->success($this->user());
     }
 
     public function index_post()

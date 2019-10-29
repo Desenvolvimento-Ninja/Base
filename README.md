@@ -1,5 +1,7 @@
 # Base
-Base de stack utlizando Codeigniter e Angular
+Base de stack utlizando-se da arquitetura restful, com backend em Codeigniter e frontend Angular.
+
+---------
 
 ### Backend
 Para se iniciar o backend
@@ -8,6 +10,8 @@ cd backend
 composer update
 php -S localhost:8000 index.php
 ```
+
+---------
 
 ### Frontend
 Para se iniciar o frontend

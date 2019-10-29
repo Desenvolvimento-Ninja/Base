@@ -20,3 +20,11 @@ cd frontend
 npm install
 ng serve
 ```
+
+---------
+
+### Documentação
+
+https://codeigniter.com/
+https://github.com/chriskacerguis/codeigniter-restserver
+http://angular.io/

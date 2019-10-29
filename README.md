@@ -1,5 +1,5 @@
 # Base
-Base de stack utlizando-se da arquitetura restful, com backend em Codeigniter e frontend Angular.
+Base de stack utlizando-se da arquitetura restful, com backend em Codeigniter e frontend em Angular.
 
 ---------
 

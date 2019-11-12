@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import Api, {Callback, Response} from '../helpers/Api';
-import Base from "../classes/Base";
+import Api, {Callback, Response} from './Api';
+import Model from "./Base";
 export interface UserInterface {
     id: number
 }
 
 @Injectable()
-export default class Me extends Base{
+export default class Me extends Model{
     constructor(public Api: Api){
         super(Api);
     }

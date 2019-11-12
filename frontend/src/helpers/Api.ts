@@ -14,6 +14,9 @@ export interface ResponseInterface {
     readonly return: any;
 }
 
+const LOGIN_FIELD = 'cpf';
+const PASSWORD_FIELD = 'password';
+
 @Injectable()
 export default class Base {
     url = 'http://localhost:8000/';
@@ -56,15 +59,14 @@ class Io {
 
     private headers: HttpHeaders;
 
-    constructor(private base: Base) {
-    }
+    constructor(private base: Base) {}
 
     public set(field: 'log' | 'cache' | 'error' | 'loader' | 'exception' | 'success', value: boolean) {
         this[field] = value;
         return this;
     }
 
-    public async get(url, args ?: any, callback ?: (response: Response, cached: boolean) => void): Promise<Response> {
+    public async get(url, args ?: { [a: string]: any }): Promise<Response> {
         const self = this;
         const response = new Response();
 
@@ -75,31 +77,6 @@ class Io {
 
         return new Promise(async (resolve: Callback, reject) => {
             await self.setHeaders();
-
-            const cache = {
-                name: 'cache-' + self.base.url + url,
-                data: null
-            };
-
-            if (self.cache && callback) {
-                const _value = await localStorage.getItem(cache.name) || '{}';
-
-                if (_value) {
-                    const value = JSON.parse(_value);
-                    cache.data = value;
-
-                    for (const item in value) {
-                        response[item] = value[item];
-                    }
-
-                    if (callback) {
-                        callback(response, true);
-                    }
-                    if (self.loader) {
-                        self.loader.dismiss();
-                    }
-                }
-            }
 
             self.base.http
                 .get(self.base.url + url, {headers: self.headers, params: args || {}})
@@ -119,14 +96,8 @@ class Io {
                             self.loader.dismiss();
                         }
 
-
-                        if (callback && data !== cache.data) {
-                            callback(response, false);
-                        }
-
                         if (response.error === false) {
                             resolve(response);
-                            // localStorage.setItem(cache.name, JSON.stringify(data));
                         } else {
                             if (self.error) {
                                 self.error_alert(data);
@@ -148,10 +119,6 @@ class Io {
 
                         console.error('app/helpers/Api/Api/get', error, this);
 
-                        if (callback && error !== cache.data) {
-                            callback(response, false);
-                        }
-
                         if (self.error) {
                             self.error_alert(response);
                         }
@@ -170,7 +137,6 @@ class Io {
         });
 
     }
-
     public async post(url: string, args: { [a: string]: any }): Promise<Response> {
         const self = this;
         const response = new Response();
@@ -200,7 +166,6 @@ class Io {
                         if (self.loader) {
                             self.loader.dismiss();
                         }
-
 
                         if (response.error === true) {
                             if (self.error) {
@@ -247,7 +212,6 @@ class Io {
                 );
         });
     }
-
     public async put(url: string, args: { [a: string]: any }): Promise<Response> {
         const self = this;
         const response = new Response();
@@ -323,7 +287,6 @@ class Io {
                 );
         });
     }
-
     public async delete(url: string): Promise<Response> {
         const self = this;
         const response = new Response();
@@ -402,23 +365,13 @@ class Io {
         });
     }
 
-    private async setHeaders() {
-        const self = this;
-        const cache = JSON.parse(await localStorage.getItem('user') || '{}');
-        const [cpf, password] = [cache.cpf || null, cache.password || null];
-
-        self.headers = new HttpHeaders({
-            'Content-Type': 'application/json'
-        });
-
-        if (cpf && password) {
-            self.headers = new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: 'Basic ' + btoa(cpf + ':' + password)
-            });
-        }
+    private async success_alert(data: Response) {
+        return await this.base.app.new.alert(
+            'Sucesso',
+            data.message || 'Atividade realizada com sucesso!',
+            'success'
+        ).show();
     }
-
     private async error_alert(data: Response) {
         console.log(`error_alert`, data);
         return await this.base.app.new.alert(
@@ -428,12 +381,21 @@ class Io {
         ).show();
     }
 
-    private async success_alert(data: Response) {
-        return await this.base.app.new.alert(
-            'Sucesso',
-            data.message || 'Atividade realizada com sucesso!',
-            'success'
-        ).show();
+    private async setHeaders() {
+        const self = this;
+        const cache = JSON.parse(await localStorage.getItem('user') || '{}');
+        const [login, password] = [cache[LOGIN_FIELD] || null, cache[PASSWORD_FIELD] || null];
+
+        self.headers = new HttpHeaders({
+            'Content-Type': 'application/json'
+        });
+
+        if (login && password) {
+            self.headers = new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization: 'Basic ' + btoa(login + ':' + password)
+            });
+        }
     }
 }
 

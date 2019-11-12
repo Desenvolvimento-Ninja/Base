@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import Me from '../../../classes/Me';
+import Me from '../../../helpers/Me';
 
 @Component({
   selector: 'app-login',

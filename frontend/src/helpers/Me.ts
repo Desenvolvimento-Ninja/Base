@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import Api, {Callback, Response} from './Api';
-import Model from "./Base";
+import Api, {Response} from './Api';
+import Model from "./Model";
 export interface UserInterface {
     id: number
 }
+
+const LINK = 'me';
 
 @Injectable()
 export default class Me extends Model{
@@ -11,18 +13,17 @@ export default class Me extends Model{
         super(Api);
     }
 
-    async login(login: string, password: string){
+    async login(login: string, password: string): Promise<UserInterface | false>{
         const self = this;
         const user = { login: login, password: password };
         await localStorage.setItem('user', JSON.stringify(user));
 
-        const response = await self.api.get(self.LINK);
+        const response = await self.api.new().get(LINK);
 
         if(!response.success){
             return false;
         }
 
-        self.cache = response.return;
         await localStorage.setItem('user', JSON.stringify(response.return));
         return response.return;
     }
@@ -35,20 +36,15 @@ export default class Me extends Model{
         });
     }
 
-    async get(args ?: any, callback ?: Callback): Promise<UserInterface | null>{
+    async get(args ?: any): Promise<UserInterface | null>{
         const self = this;
-        const response = await self.api.get(self.LINK);
+        const response = await self.api.new().get(LINK);
 
         if(!response.success){
             return null;
         }
 
-        self.cache = response.return;
         await localStorage.setItem('user', JSON.stringify(response.return));
-
-        if(callback){
-            callback(response.return)
-        }
 
         return response.return;
     }
@@ -61,7 +57,7 @@ export default class Me extends Model{
             data[item] = args[item];
         }
 
-        const update = await super.update(args);
+        const update = await self.api.new().put(LINK, args);
 
         if(await update.success){
             await self.get();
